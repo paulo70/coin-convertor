@@ -18,6 +18,7 @@ function Coin() {
   const [ formValidate, setFormValidate ]         = useState(false)
   const [ showModal, setModal ]                   = useState(false)
   const [ resultConversion, setResultConversion]  = useState('')
+  const [ showErrorMessage, setErrorMessage]      = useState(false)
 
   function handleValue(event){
     setValue(event.target.value.replace(/\D/g, ''))
@@ -48,12 +49,16 @@ function Coin() {
 
         const price = getPrice(resp.data)
 
-        setResultConversion(`${value} ${coinOf} = ${price} ${coinTo}`)
-        setModal(true)
-        setSpinner(false)
-      })
+        if( price ) {
+          setResultConversion(`${value} ${coinOf} = ${price} ${coinTo}`)
+          setModal(true)
+          setSpinner(false)
+          setErrorMessage(false)
+        } else {
+          showError()
+        }
 
-     setModal(true)
+      }).catch(err => showError())
     }
   }
 
@@ -69,10 +74,15 @@ function Coin() {
     return price.toFixed(2)
   }
 
+  function showError() {
+    setErrorMessage(true)
+    setSpinner(false)
+  }
+
   return (
     <div>
       <h1>Coin Convertor</h1>
-      <Alert variant = 'danger'  show = {false} >
+      <Alert variant = 'danger'  show = {showErrorMessage} >
         ERROR TRY AGAIN
       </Alert>
       <Jumbotron>
