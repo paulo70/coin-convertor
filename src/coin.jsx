@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Jumbotron, Button, Form, Col, Spinner, Alert, Modal } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
 
 import './coin.css';
 import List from './listCoin'
 
 function Coin() {
+
+  const FIXER_URL = 'http://data.fixer.io/api/latest?access_key=eba7130a5b2d720ce43eb5fcddd47cc3'
 
   const [ value, setValue ]                       = useState('1')
   const [ coinOf, setCoinOf ]                     = useState('BRL')
@@ -28,13 +31,42 @@ function Coin() {
     setCoinTo(event.target.value)
   }
 
+  function handleCloseModal (event) {
+    setValue('1')
+    setCoinOf('BRL')
+    setCoinTo('USD')
+    setFormValidate(false)
+    setModal(false)
+  }
+
   function handleSubmit(event){
     event.preventDefault()
-    setFormValidate(true)
 
     if( event.currentTarget.checkValidity() === true ) {
-     // todo
+     axios.get( FIXER_URL )
+      .then(resp => {
+
+        const price = getPrice(resp.data)
+
+        setResultConversion(`${value} ${coinOf} = ${price} ${coinTo}`)
+        setModal(true)
+        setSpinner(false)
+      })
+
+     setModal(true)
     }
+  }
+
+  function getPrice(priceData) {
+    if( !priceData || priceData.success !== true) {
+      return false
+    }
+
+    const priceOf = priceData.rates[coinOf]
+    const priceTo = priceData.rates[coinTo]
+    const price   = ( 1 / priceOf * priceTo ) * value
+
+    return price.toFixed(2)
   }
 
   return (
@@ -93,7 +125,7 @@ function Coin() {
 
           </Form.Row>
         </Form>
-        <Modal show = { showModal }>
+        <Modal show = { showModal } onHide = {handleCloseModal}>
           <Modal.Header closeButton>
             <Modal.Title>Conversor</Modal.Title>
           </Modal.Header>
@@ -103,7 +135,7 @@ function Coin() {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant = 'success'>
+            <Button variant = 'success' onClick = {handleCloseModal}>
               New conversion
             </Button>
           </Modal.Footer>
