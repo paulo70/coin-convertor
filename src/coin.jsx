@@ -122,7 +122,7 @@ function Coin() {
             </Col>
 
             <Col sm='2'>
-              <Button variant = 'success' type = 'submit'>
+              <Button data-testid='btn-convertor' variant = 'success' type = 'submit'>
                 <span className = { showSpinner ? null : 'hidden'}>
                   <Spinner animation = 'border' size = 'sm' />
                 </span>
@@ -135,7 +135,7 @@ function Coin() {
 
           </Form.Row>
         </Form>
-        <Modal show = { showModal } onHide = {handleCloseModal}>
+        <Modal show = { showModal } onHide = {handleCloseModal} data-testid='modal'>
           <Modal.Header closeButton>
             <Modal.Title>Conversor</Modal.Title>
           </Modal.Header>
